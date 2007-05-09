@@ -1,4 +1,4 @@
-%define version 2.0.7
+%define version 2.0.9
 %define auth_ldap_version 1.0.1
 
 %define plugindir %_libdir/%name
@@ -13,10 +13,11 @@
 Summary:	A Secure UDP Tunneling Daemon
 Name:		openvpn
 Version:	%version
-Release:	%mkrel 4
+Release:	%mkrel 1
 URL:		http://openvpn.net/
-Source0:	http://openvpn.net/release/%{name}-%{version}.tar.bz2
-Source1:    http://www.opendarwin.org/~landonf/software/openvpn-auth-ldap/auth-ldap-%{auth_ldap_version}.tar.gz
+Source0:	http://openvpn.net/release/%{name}-%{version}.tar.gz
+Source1:    http://openvpn.net/signatures/%{name}-%{version}.tar.gz.asc
+Source2:    http://www.opendarwin.org/~landonf/software/openvpn-auth-ldap/auth-ldap-%{auth_ldap_version}.tar.gz
 Patch0:		%{name}-own-user.patch
 Patch1:		openvpn-adding-routes.patch
 Patch2:		openvpn-auth-ldap-1.0.patch
@@ -49,7 +50,7 @@ This package contains the auth-ldap plugin
 %prep
 %setup -q
 %if %buildldap
-%setup -q -a 1
+%setup -q -a 2
 %endif
 %patch0 -p0
 %patch1 -p1
