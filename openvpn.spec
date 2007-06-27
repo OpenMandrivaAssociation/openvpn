@@ -13,7 +13,7 @@
 Summary:	A Secure UDP Tunneling Daemon
 Name:		openvpn
 Version:	%version
-Release:	%mkrel 1
+Release:	%mkrel 2
 URL:		http://openvpn.net/
 Source0:	http://openvpn.net/release/%{name}-%{version}.tar.gz
 Source1:    http://openvpn.net/signatures/%{name}-%{version}.tar.gz.asc
@@ -61,12 +61,13 @@ This package contains the auth-ldap plugin
 %patch4 -p1 -b .user
 
 %build
+%serverbuild
 #./pre-touch
 aclocal-1.8
 automake-1.8
 autoconf
 
-CFLAGS="%optflags -fPIC" CCFLAGS="%optflags -fPIC"
+CFLAGS="$RPM_OPT_FLAGS -fPIC" CCFLAGS="$RPM_OPT_FLAGS -fPIC"
 
 %configure \
     --enable-pthread \
