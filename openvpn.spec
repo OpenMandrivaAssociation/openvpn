@@ -25,7 +25,6 @@ Patch3:		openvpn-2.0.5-pinit.patch
 Patch4:     openvpn-2.1_rc1.openvpn_user.patch
 License:	GPL
 Group:		Networking/Other
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires:  liblzo-devel openssl-devel
 BuildRequires:	pam-devel
 BuildRequires:  automake1.8
