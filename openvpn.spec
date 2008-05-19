@@ -1,64 +1,62 @@
-%define version 2.0.9
-%define auth_ldap_version 1.0.1
+%define beta _rc7
+%define auth_ldap_version 2.0.3
 
 %define plugindir %_libdir/%name
-%define buildldap 1
+%bcond_without ldap
 
 # There is an issue with gcc, so disable for amd64
 # waiting reply/fix
 %ifarch amd64
-%define buildldap 0
+%bcond_without ldap
 %endif
 
 Summary:	A Secure UDP Tunneling Daemon
 Name:		openvpn
-Version:	%version
-Release:	%mkrel 4
+Version:	2.1
+Release:	%mkrel 0.rc7.1
 URL:		http://openvpn.net/
-Source0:	http://openvpn.net/release/%{name}-%{version}.tar.gz
-Source1:    http://openvpn.net/signatures/%{name}-%{version}.tar.gz.asc
-Source2:    http://www.opendarwin.org/~landonf/software/openvpn-auth-ldap/auth-ldap-%{auth_ldap_version}.tar.gz
+Source0:	http://openvpn.net/release/openvpn-%{version}%{beta}.tar.gz
+Source2:	http://www.opendarwin.org/~landonf/software/openvpn-auth-ldap/auth-ldap-%{auth_ldap_version}.tar.gz
 Patch0:		%{name}-own-user.patch
 Patch1:		openvpn-adding-routes.patch
-Patch2:		openvpn-auth-ldap-1.0.patch
 Patch3:		openvpn-2.0.5-pinit.patch
-Patch4:     openvpn-2.1_rc1.openvpn_user.patch
+Patch4:		openvpn-2.1_rc1.openvpn_user.patch
+Patch5:		openvpn-auth-ldap-2.0.3-disable-tests.patch
 License:	GPL
 Group:		Networking/Other
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
-BuildRequires:  liblzo-devel openssl-devel
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRequires:	liblzo-devel openssl-devel
 BuildRequires:	pam-devel
-BuildRequires:  automake1.8
-%if %buildldap
-BuildRequires:  gcc-objc
-BuildRequires:  openldap-devel
+BuildRequires:	automake1.8
+%if %with ldap
+BuildRequires:	gcc-objc
+BuildRequires:	openldap-devel
 %endif
-Requires(pre): rpm-helper
-Requires(preun): rpm-helper
-Requires(post): rpm-helper
-Requires(postun): rpm-helper
+Requires(pre):	rpm-helper
+Requires(preun): 	rpm-helper
+Requires(post):	rpm-helper
+Requires(postun):	rpm-helper
 
 %description
 OpenVPN is a robust and highly flexible tunneling application that  uses
 all of the encryption, authentication, and certification features of the
 OpenSSL library to securely tunnel IP networks over a single UDP port.
 
-%if buildldap
+%if %with ldap
 This package contains the auth-ldap plugin
 %endif
 
 %prep
-%setup -q
-%if %buildldap
-%setup -q -a 2
+%setup -q -n openvpn-%{version}%{beta}
+%if %with ldap
+%setup -q -n openvpn-%{version}%{beta} -a 2
+%{__mv} auth-ldap-%{auth_ldap_version}/README auth-ldap-%{auth_ldap_version}/README-openvpn-auth-ldap
 %endif
 %patch0 -p0
 %patch1 -p1
-%if %buildldap
-%patch2 -p0
-%endif
-%patch3 -p1 -b .pinit
-%patch4 -p1 -b .user
+%patch3 -p1
+%patch4 -p1
+%patch5 -p0
 
 %build
 %serverbuild
@@ -67,21 +65,18 @@ aclocal-1.8
 automake-1.8
 autoconf
 
-CFLAGS="$RPM_OPT_FLAGS -fPIC" CCFLAGS="$RPM_OPT_FLAGS -fPIC"
-
-%configure \
-    --enable-pthread \
-    --enable-plugin \
-    --with-lzo-headers=%_includedir/lzo
-
+CFLAGS="%{optflags} -fPIC" CCFLAGS="%{optflags} -fPIC"
+%configure2_5x --enable-pthread --with-lzo-headers=%{_includedir}/lzo
 %make
-
 # plugins
 %make -C plugin/down-root
 %make -C plugin/auth-pam
 
-%if %buildldap
-%make -C auth-ldap-%auth_ldap_version OPENVPN=.. LDAP=/usr
+%if %with ldap
+pushd auth-ldap-%{auth_ldap_version}
+%configure2_5x --with-openvpn=`pwd`/../ --libdir=%{plugindir}
+%make
+popd
 %endif
 
 %install
@@ -96,23 +91,29 @@ install -d %{buildroot}%{_sysconfdir}/%{name}
 mkdir -p %{buildroot}%{_datadir}/%{name}
 cp -pr easy-rsa sample-{config-file,key,script}s %{buildroot}%{_datadir}/%{name}
 
+%{__chmod} 0755 %{buildroot}%{_datadir}/%{name}/easy-rsa/1.0/revoke-crt \
+  %{buildroot}%{_datadir}/%{name}/easy-rsa/1.0/make-crl \
+  %{buildroot}%{_datadir}/%{name}/easy-rsa/1.0/list-crl
+%{__rm} -r %{buildroot}%{_datadir}/%{name}/easy-rsa/Windows/init-config.bat
+	
 install -d $RPM_BUILD_ROOT%{_localstatedir}/%{name}
 
 #plugins
-mkdir -p %buildroot%plugindir
+mkdir -p %{buildroot}%{plugindir}
 
 for pi in down-root auth-pam; do
-    %__cp -f plugin/$pi/README plugin/README.$pi
-    %__install -c -m 755 plugin/$pi/openvpn-$pi.so %{buildroot}%plugindir/openvpn-$pi.so
+	%{__cp} -pf plugin/$pi/README plugin/README.$pi
+	%{__install} -c -p -m 755 plugin/$pi/openvpn-$pi.so %{buildroot}%plugindir/openvpn-$pi.so
 done
 
-%if %buildldap
-%__install -c -m 755 auth-ldap-%auth_ldap_version/openvpn-auth-ldap.so %{buildroot}%plugindir/openvpn-auth-ldap.so
-%__cp -f auth-ldap-%auth_ldap_version/README auth-ldap-%auth_ldap_version/README-openvpn-auth-ldap
+%if %with ldap
+pushd auth-ldap-%{auth_ldap_version}
+%makeinstall_std
+popd
 %endif
 
 %clean
-[ %{buildroot} != "/" ] && rm -rf %{buildroot}
+rm -rf %{buildroot}
 
 %pre
 %_pre_useradd %{name} %{_localstatedir}/%{name} /bin/true
@@ -127,10 +128,10 @@ done
 %_postun_userdel %{name}
 
 %files
-%defattr(-,root,root)
+%defattr(-,root,root,0755)
 %doc AUTHORS INSTALL PORTS README
 %doc plugin/README.*
-%if %buildldap
+%if %with ldap
 %doc auth-ldap-%auth_ldap_version/README-openvpn-auth-ldap
 %endif
 %{_mandir}/man8/%{name}.8*
@@ -141,5 +142,3 @@ done
 %dir %{_localstatedir}/%{name}
 %dir %plugindir
 %plugindir/*.so
-
-
