@@ -31,6 +31,7 @@ BuildRequires:	automake1.8
 %if %with ldap
 BuildRequires:	gcc-objc
 BuildRequires:	openldap-devel
+BuildRequires:	re2c
 %endif
 Requires(pre):	rpm-helper
 Requires(preun): 	rpm-helper
