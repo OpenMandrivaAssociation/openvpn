@@ -97,7 +97,7 @@ cp -pr easy-rsa sample-{config-file,key,script}s %{buildroot}%{_datadir}/%{name}
   %{buildroot}%{_datadir}/%{name}/easy-rsa/1.0/list-crl
 %{__rm} -r %{buildroot}%{_datadir}/%{name}/easy-rsa/Windows/init-config.bat
 	
-install -d $RPM_BUILD_ROOT%{_localstatedir}/%{name}
+install -d $RPM_BUILD_ROOT%{_localstatedir}/lib/%{name}
 
 #plugins
 mkdir -p %{buildroot}%{plugindir}
@@ -117,7 +117,7 @@ popd
 rm -rf %{buildroot}
 
 %pre
-%_pre_useradd %{name} %{_localstatedir}/%{name} /bin/true
+%_pre_useradd %{name} %{_localstatedir}/lib/%{name} /bin/true
 
 %post
 %_post_service %{name}
@@ -140,6 +140,6 @@ rm -rf %{buildroot}
 %{_datadir}/%{name}
 %dir %{_sysconfdir}/%{name}
 %{_initrddir}/%{name}
-%dir %{_localstatedir}/%{name}
+%dir %{_localstatedir}/lib/%{name}
 %dir %plugindir
 %plugindir/*.so
