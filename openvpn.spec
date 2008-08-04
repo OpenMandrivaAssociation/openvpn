@@ -1,4 +1,4 @@
-%define beta _rc7
+%define beta _rc9
 %define auth_ldap_version 2.0.3
 
 %define plugindir %_libdir/%name
@@ -13,7 +13,7 @@
 Summary:	A Secure UDP Tunneling Daemon
 Name:		openvpn
 Version:	2.1
-Release:	%mkrel 0.rc7.1
+Release:	%mkrel 0.rc9.1
 URL:		http://openvpn.net/
 Source0:	http://openvpn.net/release/openvpn-%{version}%{beta}.tar.gz
 Source2:	http://www.opendarwin.org/~landonf/software/openvpn-auth-ldap/auth-ldap-%{auth_ldap_version}.tar.gz
