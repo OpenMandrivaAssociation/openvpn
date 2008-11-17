@@ -13,7 +13,7 @@
 Summary:	A Secure UDP Tunneling Daemon
 Name:		openvpn
 Version:	2.1
-Release:	%mkrel 0.rc10.2
+Release:	%mkrel 0.rc10.3
 URL:		http://openvpn.net/
 Source0:	http://openvpn.net/release/openvpn-%{version}%{beta}.tar.gz
 Source2:	http://www.opendarwin.org/~landonf/software/openvpn-auth-ldap/auth-ldap-%{auth_ldap_version}.tar.gz
@@ -30,6 +30,7 @@ Group:		Networking/Other
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires:	liblzo-devel openssl-devel
 BuildRequires:	pam-devel
+BuildRequires:	libpkcs11-helper-devel
 BuildRequires:	automake1.8
 %if %with ldap
 BuildRequires:	gcc-objc
