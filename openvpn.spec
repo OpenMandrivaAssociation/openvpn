@@ -1,4 +1,4 @@
-%define beta _rc10
+%define beta _rc15
 %define auth_ldap_version 2.0.3
 
 %define plugindir %_libdir/%name
@@ -13,7 +13,7 @@
 Summary:	A Secure UDP Tunneling Daemon
 Name:		openvpn
 Version:	2.1
-Release:	%mkrel 0.rc10.3
+Release:	%mkrel 0.rc15.1
 URL:		http://openvpn.net/
 Source0:	http://openvpn.net/release/openvpn-%{version}%{beta}.tar.gz
 Source2:	http://www.opendarwin.org/~landonf/software/openvpn-auth-ldap/auth-ldap-%{auth_ldap_version}.tar.gz
@@ -22,9 +22,6 @@ Patch1:		openvpn-adding-routes.patch
 Patch3:		openvpn-2.0.5-pinit.patch
 Patch4:		openvpn-2.1_rc1.openvpn_user.patch
 Patch5:		openvpn-auth-ldap-2.0.3-disable-tests.patch
-# Fix UDP SSL/TLS negotiations if UDP packets are dropped
-# This is actually the only patch in 2.1-rc11
-Patch6:		openvpn-2.1-rc10-fix-udp-ssltls-negotiations.patch
 License:	GPLv2
 Group:		Networking/Other
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
@@ -62,7 +59,6 @@ This package contains the auth-ldap plugin
 %patch3 -p1
 %patch4 -p1
 %patch5 -p0
-%patch6 -p1
 
 %build
 %serverbuild
