@@ -23,6 +23,7 @@ Patch3:		openvpn-2.0.5-pinit.patch
 Patch4:		openvpn-2.1_rc1.openvpn_user.patch
 Patch5:		openvpn-auth-ldap-2.0.3-disable-tests.patch
 Patch6:		openvpn-2.1_rc15-wformat.patch
+Patch7:		openvpn-pushc.patch
 License:	GPLv2
 Group:		Networking/Other
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
@@ -61,6 +62,7 @@ This package contains the auth-ldap plugin
 %patch4 -p1
 %patch5 -p0
 %patch6 -p1
+%patch7 -p1
 
 %build
 %serverbuild
