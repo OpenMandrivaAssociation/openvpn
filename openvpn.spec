@@ -1,4 +1,4 @@
-%define beta _rc20
+%define beta _rc21
 %define auth_ldap_version 2.0.3
 
 %define plugindir %_libdir/%name
