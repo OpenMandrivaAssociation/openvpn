@@ -11,8 +11,8 @@
 
 Summary:	A Secure UDP Tunneling Daemon
 Name:		openvpn
-Version:	2.1.1
-Release:	%mkrel 3
+Version:	2.1.2
+Release:	%mkrel 1
 URL:		http://openvpn.net/
 Source0:	http://openvpn.net/release/openvpn-%{version}.tar.gz
 Source2:	http://openvpn-auth-ldap.googlecode.com/files/auth-ldap-%{auth_ldap_version}.tar.gz
