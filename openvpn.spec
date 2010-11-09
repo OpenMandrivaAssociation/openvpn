@@ -9,9 +9,9 @@
 %bcond_without ldap
 %endif
 
-Summary:	A Secure UDP Tunneling Daemon
+Summary:	A Secure TCP/UDP Tunneling Daemon
 Name:		openvpn
-Version:	2.1.3
+Version:	2.1.4
 Release:	%mkrel 1
 URL:		http://openvpn.net/
 Source0:	http://openvpn.net/release/openvpn-%{version}.tar.gz
