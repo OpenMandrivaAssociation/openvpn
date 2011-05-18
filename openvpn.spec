@@ -1,95 +1,65 @@
-%define auth_ldap_version 2.0.3
-
 %define plugindir %_libdir/%name
-%bcond_without ldap
-
-# There is an issue with gcc, so disable for amd64
-# waiting reply/fix
-%ifarch amd64
-%bcond_without ldap
-%endif
 
 Summary:	A Secure TCP/UDP Tunneling Daemon
 Name:		openvpn
 Version:	2.1.4
-Release:	%mkrel 2
+Release:	%mkrel 3
 URL:		http://openvpn.net/
 Source0:	http://openvpn.net/release/openvpn-%{version}.tar.gz
-Source2:	http://openvpn-auth-ldap.googlecode.com/files/auth-ldap-%{auth_ldap_version}.tar.gz
 Patch0:		%{name}-own-user.patch
 Patch1:		openvpn-adding-routes.patch
 Patch3:		openvpn-2.0.5-pinit.patch
 Patch4:		openvpn-2.1_rc1.openvpn_user.patch
-Patch5:		openvpn-auth-ldap-2.0.3-disable-tests.patch
 Patch6:		openvpn-2.1_rc15-wformat.patch
 Patch7:		openvpn-pushc.patch
 License:	GPLv2
 Group:		Networking/Other
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
-BuildRequires:	liblzo-devel openssl-devel
-BuildRequires:	pam-devel
+BuildRequires:	liblzo-devel
 BuildRequires:	libpkcs11-helper-devel
-BuildRequires:	automake1.8
-%if %with ldap
-BuildRequires:	gcc-objc
-BuildRequires:	openldap-devel
-BuildRequires:	re2c
-%endif
+BuildRequires:	openssl-devel
+BuildRequires:	pam-devel
 Requires(pre):	rpm-helper
 Requires(preun): 	rpm-helper
 Requires(post):	rpm-helper
 Requires(postun):	rpm-helper
+Suggests:	openvpn-auth-ldap
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 %description
 OpenVPN is a robust and highly flexible tunneling application that  uses
 all of the encryption, authentication, and certification features of the
 OpenSSL library to securely tunnel IP networks over a single UDP port.
 
-%if %with ldap
-This package contains the auth-ldap plugin
-%endif
-
 %prep
+
 %setup -q -n openvpn-%{version}
-%if %with ldap
-%setup -q -n openvpn-%{version} -a 2
-%{__mv} auth-ldap-%{auth_ldap_version}/README auth-ldap-%{auth_ldap_version}/README-openvpn-auth-ldap
-%endif
 %patch0 -p0
 %patch1 -p1
 %patch3 -p1
 %patch4 -p1
-%patch5 -p0
 %patch6 -p1
 %patch7 -p1
 
 %build
+autoreconf -fi
 %serverbuild
-#./pre-touch
-aclocal-1.8
-automake-1.8
-autoconf
 
 CFLAGS="%{optflags} -fPIC" CCFLAGS="%{optflags} -fPIC"
-%configure2_5x --enable-pthread --with-lzo-headers=%{_includedir}/lzo
+%configure2_5x \
+    --enable-pthread \
+    --with-lzo-headers=%{_includedir}/lzo
+
 %make
+
 # plugins
 %make -C plugin/down-root
 %make -C plugin/auth-pam
 
-%if %with ldap
-pushd auth-ldap-%{auth_ldap_version}
-%configure2_5x --with-openvpn=`pwd`/../ --libdir=%{plugindir}
-%make
-popd
-%endif
-
 %install
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
+
 %makeinstall_std
 
-#install -m755 %{name}.8 -D %{buildroot}%{_mandir}/man8/%{name}.8
-#install -m755 %{name} -D %{buildroot}%{_sbindir}/%{name}
 install -m755 sample-scripts/%{name}.init -D %{buildroot}/%{_initrddir}/%{name}
 install -d %{buildroot}%{_sysconfdir}/%{name}
 
@@ -100,8 +70,8 @@ cp -pr easy-rsa sample-{config-file,key,script}s %{buildroot}%{_datadir}/%{name}
   %{buildroot}%{_datadir}/%{name}/easy-rsa/1.0/make-crl \
   %{buildroot}%{_datadir}/%{name}/easy-rsa/1.0/list-crl
 %{__rm} -r %{buildroot}%{_datadir}/%{name}/easy-rsa/Windows/init-config.bat
-	
-install -d $RPM_BUILD_ROOT%{_localstatedir}/lib/%{name}
+
+install -d %{buildroot}%{_localstatedir}/lib/%{name}
 
 #plugins
 mkdir -p %{buildroot}%{plugindir}
@@ -110,12 +80,6 @@ for pi in down-root auth-pam; do
 	%{__cp} -pf plugin/$pi/README plugin/README.$pi
 	%{__install} -c -p -m 755 plugin/$pi/openvpn-$pi.so %{buildroot}%plugindir/openvpn-$pi.so
 done
-
-%if %with ldap
-pushd auth-ldap-%{auth_ldap_version}
-%makeinstall_std
-popd
-%endif
 
 %clean
 rm -rf %{buildroot}
@@ -134,16 +98,12 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,0755)
-%doc AUTHORS INSTALL PORTS README
-%doc plugin/README.*
-%if %with ldap
-%doc auth-ldap-%auth_ldap_version/README-openvpn-auth-ldap
-%endif
-%{_mandir}/man8/%{name}.8*
-%{_sbindir}/%{name}
-%{_datadir}/%{name}
+%doc AUTHORS INSTALL PORTS README plugin/README.*
 %dir %{_sysconfdir}/%{name}
 %{_initrddir}/%{name}
+%{_sbindir}/%{name}
+%{_datadir}/%{name}
 %dir %{_localstatedir}/lib/%{name}
 %dir %plugindir
 %plugindir/*.so
+%{_mandir}/man8/%{name}.8*
