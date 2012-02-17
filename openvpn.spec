@@ -2,8 +2,8 @@
 
 Summary:	A Secure TCP/UDP Tunneling Daemon
 Name:		openvpn
-Version:	2.2.1
-Release:	%mkrel 1
+Version:	2.2.2
+Release:	1
 License:	GPLv2
 Group:		Networking/Other
 URL:		http://openvpn.net/
@@ -27,7 +27,6 @@ Requires(preun): 	rpm-helper
 Requires(post):	rpm-helper
 Requires(postun):	rpm-helper
 Suggests:	openvpn-auth-ldap
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 %description
 OpenVPN is a robust and highly flexible tunneling application that  uses
@@ -133,9 +132,6 @@ for pi in down-root auth-pam; do
 	%{__cp} -pf plugin/$pi/README plugin/README.$pi
 	%{__install} -c -p -m 755 plugin/$pi/openvpn-$pi.so %{buildroot}%plugindir/openvpn-$pi.so
 done
-
-%clean
-rm -rf %{buildroot}
 
 %pre
 %_pre_useradd %{name} %{_localstatedir}/lib/%{name} /bin/true
