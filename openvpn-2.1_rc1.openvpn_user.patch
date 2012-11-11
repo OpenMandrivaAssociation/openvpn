@@ -1,0 +1,109 @@
+--- openvpn-2.1_rc1/sample-config-files/server.conf.orig	2006-10-16 00:30:20.000000000 +0200
++++ openvpn-2.1_rc1/sample-config-files/server.conf	2006-11-22 14:12:05.000000000 +0100
+@@ -251,8 +251,8 @@
+ #
+ # You can uncomment this out on
+ # non-Windows systems.
+-;user nobody
+-;group nobody
++;user openvpn
++;group openvpn
+ 
+ # The persist options will try to avoid
+ # accessing certain resources on restart
+--- openvpn-2.1_rc1/sample-config-files/client.conf.orig	2006-10-16 00:30:20.000000000 +0200
++++ openvpn-2.1_rc1/sample-config-files/client.conf	2006-11-22 14:12:05.000000000 +0100
+@@ -58,8 +58,8 @@
+ nobind
+ 
+ # Downgrade privileges after initialization (non-Windows only)
+-;user nobody
+-;group nobody
++;user openvpn
++;group openvpn
+ 
+ # Try to preserve some state across restarts.
+ persist-key
+--- openvpn-2.1_rc1/sample-config-files/tls-home.conf.orig	2006-10-16 00:30:20.000000000 +0200
++++ openvpn-2.1_rc1/sample-config-files/tls-home.conf	2006-11-22 14:12:05.000000000 +0100
+@@ -48,10 +48,10 @@
+ ; port 1194
+ 
+ # Downgrade UID and GID to
+-# "nobody" after initialization
++# "openvpn" after initialization
+ # for extra security.
+-; user nobody
+-; group nobody
++; user openvpn
++; group openvpn
+ 
+ # If you built OpenVPN with
+ # LZO compression, uncomment
+--- openvpn-2.1_rc1/sample-config-files/static-home.conf.orig	2006-10-16 00:30:20.000000000 +0200
++++ openvpn-2.1_rc1/sample-config-files/static-home.conf	2006-11-22 14:12:05.000000000 +0100
+@@ -37,10 +37,10 @@
+ ; port 1194
+ 
+ # Downgrade UID and GID to
+-# "nobody" after initialization
++# "openvpn" after initialization
+ # for extra security.
+-; user nobody
+-; group nobody
++; user openvpn
++; group openvpn
+ 
+ # If you built OpenVPN with
+ # LZO compression, uncomment
+--- openvpn-2.1_rc1/sample-config-files/static-office.conf.orig	2006-10-16 00:30:20.000000000 +0200
++++ openvpn-2.1_rc1/sample-config-files/static-office.conf	2006-11-22 14:12:05.000000000 +0100
+@@ -34,10 +34,10 @@
+ ; port 1194
+ 
+ # Downgrade UID and GID to
+-# "nobody" after initialization
++# "openvpn" after initialization
+ # for extra security.
+-; user nobody
+-; group nobody
++; user openvpn
++; group openvpn
+ 
+ # If you built OpenVPN with
+ # LZO compression, uncomment
+--- openvpn-2.1_rc1/sample-config-files/tls-office.conf.orig	2006-10-16 00:30:20.000000000 +0200
++++ openvpn-2.1_rc1/sample-config-files/tls-office.conf	2006-11-22 14:12:05.000000000 +0100
+@@ -48,10 +48,10 @@
+ ; port 1194
+ 
+ # Downgrade UID and GID to
+-# "nobody" after initialization
++# "openvpn" after initialization
+ # for extra security.
+-; user nobody
+-; group nobody
++; user openvpn
++; group openvpn
+ 
+ # If you built OpenVPN with
+ # LZO compression, uncomment
+--- openvpn-2.1_rc1/sample-config-files/xinetd-client-config.orig	2006-10-16 00:30:20.000000000 +0200
++++ openvpn-2.1_rc1/sample-config-files/xinetd-client-config	2006-11-22 14:16:07.000000000 +0100
+@@ -6,6 +6,6 @@
+ ifconfig 10.4.0.1 10.4.0.2
+ remote my-server
+ port 1194
+-user nobody
++user openvpn
+ secret /root/openvpn/key
+ inactive 600
+--- openvpn-2.1_rc1/sample-config-files/xinetd-server-config.orig	2006-10-16 00:30:20.000000000 +0200
++++ openvpn-2.1_rc1/sample-config-files/xinetd-server-config	2006-11-22 14:14:04.000000000 +0100
+@@ -21,5 +21,5 @@
+         wait            = yes
+         user            = root
+         server          = /root/openvpn/openvpn
+-        server_args     = --inetd --dev tun --ifconfig 10.4.0.2 10.4.0.1 --secret /root/openvpn/key --inactive 600 --user nobody
++        server_args     = --inetd --dev tun --ifconfig 10.4.0.2 10.4.0.1 --secret /root/openvpn/key --inactive 600 --user openvpn
+ }

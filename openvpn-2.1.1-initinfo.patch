@@ -1,0 +1,16 @@
+--- sample-scripts/openvpn.init~	2010-01-04 16:52:25.000000000 -0600
++++ sample-scripts/openvpn.init	2010-01-05 05:48:24.043085950 -0600
+@@ -15,0 +16,13 @@
++### BEGIN INIT INFO
++# Provides: openvpn
++# Required-Start: $network
++# Required-Stop: $network
++# Short-Description: start and stop openvpn
++# Description: OpenVPN is a robust and highly flexible tunneling \
++#              application that uses all of the encryption, \
++#              authentication, and certification features of the OpenSSL \
++#              library to securely tunnel IP networks over a single UDP \
++#              port.
++### END INIT INFO
++
++

@@ -1,0 +1,5 @@
+--- sample-scripts/openvpn.init~	2010-01-04 08:30:35.000000000 -0600
++++ sample-scripts/openvpn.init	2010-01-04 15:53:29.503900367 -0600
+@@ -153 +153 @@
+-		. $bn.sh
++		. ./$bn.sh
