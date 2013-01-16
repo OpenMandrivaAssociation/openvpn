@@ -1,2 +1,3 @@
 sources:
-  "openvpn-2.2.1.tar.gz": d5a8e9c635aa330eae8e66e1ccbe2b98e4c3047b
+  openvpn-2.2.1.tar.gz: d5a8e9c635aa330eae8e66e1ccbe2b98e4c3047b
+  openvpn-2.2.1.tar.gz.asc: 7c0fa2fb6a5bc17a5acc197d46bed01e733627e2

@@ -14,6 +14,7 @@ Patch1:		openvpn-adding-routes.patch
 Patch2:		openvpn-2.0.5-pinit.patch
 Patch3:		openvpn-2.1_rc1.openvpn_user.patch
 Patch4:		openvpn-2.1_rc15-wformat.patch
+Patch5:		openvpn-automake-1.13.patch
 # fedora patches
 Patch10:	openvpn-script-security.patch
 Patch11:	openvpn-2.1.1-init.patch
@@ -27,7 +28,6 @@ Requires(preun): 	rpm-helper
 Requires(post):	rpm-helper
 Requires(postun):	rpm-helper
 Suggests:	openvpn-auth-ldap
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 %description
 OpenVPN is a robust and highly flexible tunneling application that  uses
@@ -42,6 +42,7 @@ OpenSSL library to securely tunnel IP networks over a single UDP port.
 %patch2 -p0
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1 -b .am113~
 # fedora patches
 %patch10 -p0
 %patch11 -p0
