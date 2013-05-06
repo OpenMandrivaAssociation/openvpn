@@ -1,31 +1,29 @@
-%define plugindir %{_libdir}/openvpn
+%define easy_rsa_version 2.2.0_master
+%define develname %mklibname %{name} -d
+
+
+%define plugindir %_libdir/%name/plugins
 
 Summary:	A Secure TCP/UDP Tunneling Daemon
 Name:		openvpn
-Version:	2.2.1
-Release:	4
+Version:	2.3.1
+Release:	%mkrel 2
+URL:		http://openvpn.net/
+Source0:	http://openvpn.net/release/openvpn-%{version}.tar.gz
+Source3:	dhcp.sh
+Source4:	openvpn-tmpfile.conf
+Source5:	openvpn@.service
+Source6:	openvpn.target
+Source7:	https://github.com/downloads/OpenVPN/easy-rsa/easy-rsa-%{easy_rsa_version}.tar.gz
+Patch1:		openvpn-2.3.openvpn_user.patch
+Patch2:		openvpn-2.3.1_rc15-wformat.patch
 License:	GPLv2
 Group:		Networking/Other
-URL:		http://openvpn.net/
-Source0:	http://swupdate.openvpn.net/community/releases/openvpn-%{version}.tar.gz
-Source1:	http://swupdate.openvpn.net/community/releases/openvpn-%{version}.tar.gz.asc
-Patch0:		openvpn-own-user.patch
-Patch1:		openvpn-adding-routes.patch
-Patch2:		openvpn-2.0.5-pinit.patch
-Patch3:		openvpn-2.1_rc1.openvpn_user.patch
-Patch4:		openvpn-2.1_rc15-wformat.patch
-Patch5:		openvpn-automake-1.13.patch
-# fedora patches
-Patch10:	openvpn-script-security.patch
-Patch11:	openvpn-2.1.1-init.patch
-Patch12:	openvpn-2.1.1-initinfo.patch
-
-BuildRequires:	liblzo-devel
-BuildRequires:	libpkcs11-helper-devel
-BuildRequires:	openssl-devel
+BuildRequires:	liblzo-devel openssl-devel
 BuildRequires:	pam-devel
+BuildRequires:	libpkcs11-helper-devel
 Requires(pre):	rpm-helper
-Requires(preun): 	rpm-helper
+Requires(preun):	rpm-helper
 Requires(post):	rpm-helper
 Requires(postun):	rpm-helper
 Suggests:	openvpn-auth-ldap
@@ -35,125 +33,134 @@ OpenVPN is a robust and highly flexible tunneling application that  uses
 all of the encryption, authentication, and certification features of the
 OpenSSL library to securely tunnel IP networks over a single UDP port.
 
+
+%package -n %develname
+Summary:        Development package for OpenVPN plugins
+Group:          System/Libraries
+Requires:       %{name} = %version-%release
+
+%description -n %develname
+OpenVPN .h files.
+
 %prep
-
-%setup -q
-%patch0 -p0
+%setup -q -n openvpn-%{version} -a 7
 %patch1 -p1
-%patch2 -p0
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1 -b .am113~
-# fedora patches
-%patch10 -p0
-%patch11 -p0
-%patch12 -p0
+%patch2 -p1
 
-sed -i -e 's,%{_datadir}/openvpn/plugin,%{_libdir}/openvpn/plugin,' openvpn.8
+sed -i -e 's,%{_datadir}/openvpn/plugin,%{_libdir}/openvpn/plugin,' doc/openvpn.8
 
 # %%doc items shouldn't be executable.
-find contrib sample-config-files sample-keys sample-scripts -type f -perm +100 \
+find contrib sample -type f -perm +100 \
     -exec chmod a-x {} \;
 
 %build
-autoreconf -fi
-%serverbuild
-
 CFLAGS="%{optflags} -fPIC" CCFLAGS="%{optflags} -fPIC"
+%serverbuild
+#./pre-touch
+libtoolize --copy --force --install
+aclocal
+automake -a -c -f -i
+autoreconf -fi
 
-#  --enable-pthread        Enable pthread support (Experimental for OpenVPN 2.0)
-#  --enable-password-save  Allow --askpass and --auth-user-pass passwords to be
-#                          read from a file
-#  --enable-iproute2       Enable support for iproute2
-#  --with-ifconfig-path=PATH   Path to ifconfig tool
-#  --with-iproute-path=PATH    Path to iproute tool
-#  --with-route-path=PATH  Path to route tool
 %configure2_5x \
-    --enable-pthread \
-    --enable-password-save \
-    --enable-iproute2 \
-    --with-ifconfig-path=/sbin/ifconfig \
-    --with-iproute-path=/sbin/ip \
-    --with-route-path=/sbin/route \
-    --with-lzo-headers=%{_includedir}/lzo
+	--enable-systemd \
+	--enable-pthread \
+	--with-lzo-headers=%{_includedir}/lzo \
+	--enable-password-save || cat config.log
 
 %make
 
 # plugins
-%make -C plugin/down-root
-%make -C plugin/auth-pam
+%make -C src/plugins/down-root
+%make -C src/plugins/auth-pam
 
-%check
-# Test Crypto:
-./openvpn --genkey --secret key
-./openvpn --test-crypto --secret key
-
-# Randomize ports for tests to avoid conflicts on the build servers.
-cport=$[ 50000 + ($RANDOM % 15534) ]
-sport=$[ $cport + 1 ]
-sed -e 's/^\(rport\) .*$/\1 '$sport'/' \
-    -e 's/^\(lport\) .*$/\1 '$cport'/' \
-    < sample-config-files/loopback-client \
-    > %{_tmppath}/%{name}-%{version}-%{release}-%(%{__id_u})-loopback-client
-sed -e 's/^\(rport\) .*$/\1 '$cport'/' \
-    -e 's/^\(lport\) .*$/\1 '$sport'/' \
-    < sample-config-files/loopback-server \
-    > %{_tmppath}/%{name}-%{version}-%{release}-%(%{__id_u})-loopback-server
-
-# Test SSL/TLS negotiations (runs for 2 minutes):
-./openvpn --config \
-    %{_tmppath}/%{name}-%{version}-%{release}-%(%{__id_u})-loopback-client &
-./openvpn --config \
-    %{_tmppath}/%{name}-%{version}-%{release}-%(%{__id_u})-loopback-server
-wait
-
-rm -f %{_tmppath}/%{name}-%{version}-%{release}-%(%{__id_u})-loopback-client \
-    %{_tmppath}/%{name}-%{version}-%{release}-%(%{__id_u})-loopback-server
+pushd easy-rsa-%{easy_rsa_version}
+%configure2_5x \
+	--with-easyrsadir=%{_datadir}/%{name}/easy-rsa
+%make
+popd
 
 %install
 %makeinstall_std
+%makeinstall_std -C easy-rsa-%{easy_rsa_version}
 
-install -m755 sample-scripts/%{name}.init -D %{buildroot}/%{_initrddir}/%{name}
 install -d %{buildroot}%{_sysconfdir}/%{name}
+# (cg) NB The sample config file is needed for drakvpn
+cp -pr sample/sample-{config-file,key,script}s %{buildroot}%{_datadir}/%{name}
 
 mkdir -p %{buildroot}%{_datadir}/%{name}
-cp -pr easy-rsa sample-{config-file,key,script}s %{buildroot}%{_datadir}/%{name}
-
-chmod 0755 %{buildroot}%{_datadir}/%{name}/easy-rsa/1.0/revoke-crt \
-  %{buildroot}%{_datadir}/%{name}/easy-rsa/1.0/make-crl \
-  %{buildroot}%{_datadir}/%{name}/easy-rsa/1.0/list-crl
-rm -r %{buildroot}%{_datadir}/%{name}/easy-rsa/Windows/init-config.bat
-
 install -d %{buildroot}%{_localstatedir}/lib/%{name}
+
+# (cg) Nuke sysvinit script
+rm -f %{buildroot}%{_datadir}/%{name}/sample-scripts/openvpn.init
+
+# (cg) Add systemd units
+install -D -m 644 %{SOURCE4} %{buildroot}%{_tmpfilesdir}/openvpn.conf
+install -D -m 644 %{SOURCE5} %{buildroot}%{_unitdir}/openvpn@.service
+install -D -m 644 %{SOURCE6} %{buildroot}%{_unitdir}/openvpn.target
 
 #plugins
 mkdir -p %{buildroot}%{plugindir}
 
-for pi in down-root auth-pam; do
-	%{__cp} -pf plugin/$pi/README plugin/README.$pi
-	%{__install} -c -p -m 755 plugin/$pi/openvpn-$pi.so %{buildroot}%plugindir/openvpn-$pi.so
-done
+install -m755 %{SOURCE3} %{buildroot}%{_datadir}/%{name}
 
 %pre
 %_pre_useradd %{name} %{_localstatedir}/lib/%{name} /bin/true
 
 %post
-%_post_service %{name}
+# (cg) This is a templated unit, so we have to manually convert to systemd
+if [ ! -f %{_localstatedir}/lib/rpm-helper/systemd-migration/%{name} ]; then
+  if [ -f %{_sysconfdir}/rc3.d/S??%{name} ]; then
+    for conf in %{_sysconfdir}/%{name}/*.conf; do
+      [ "$conf" = "%{_sysconfdir}/%{name}/*.conf" ] && continue
+      conf=$(basename $conf .conf)
+      mkdir -p %{_sysconfdir}/systemd/system/%{name}.target.wants
+      ln -s %{_unitdir}/%{name}@.service %{_sysconfdir}/systemd/system/%{name}.target.wants/%{name}@$conf.service
+    done
+    systemctl --quiet enable %{name}.target
+  fi
+  mkdir -p %{_localstatedir}/lib/rpm-helper/systemd-migration
+  touch %{_localstatedir}/lib/rpm-helper/systemd-migration/%{name}
+else
+  # (cg) Older versions were not controlled by their own target
+  UNITS=
+  for unit in %{_sysconfdir}/systemd/system/multi-user.target.wants/%{name}@?*.service; do
+    [ "$unit" = "%{_sysconfdir}/systemd/system/multi-user.target.wants/%{name}@?*.service" ] && continue
+    UNITS="$UNITS $unit"
+  done
+  if [ -n "$UNITS" ]; then
+    mkdir %{_sysconfdir}/systemd/system/%{name}.target.wants
+    mv $UNITS %{_sysconfdir}/systemd/system/%{name}.target.wants
+    systemctl --quiet enable %{name}.target
+  fi
+fi
+%_tmpfilescreate %{name}
+%_post_service %{name} %{name}.target
 
 %preun
-%_preun_service %{name}
+%_preun_service %{name} %{name}.target
 
 %postun
 %_postun_userdel %{name}
 
 %files
-%doc AUTHORS INSTALL PORTS README plugin/README.*
-%dir %{_sysconfdir}/%{name}
-%{_initrddir}/%{name}
+%doc AUTHORS INSTALL PORTS README 
+%doc src/plugins/*/README.*
+%doc 
+%{_mandir}/man8/%{name}.8*
 %{_sbindir}/%{name}
 %{_datadir}/%{name}
+%dir %{_sysconfdir}/%{name}
+#{_datadir}/%{name}/dhcp.sh
+%{_unitdir}/%{name}*.service
+%{_unitdir}/%{name}.target
+%{_tmpfilesdir}/%{name}.conf
 %dir %{_localstatedir}/lib/%{name}
 %dir %plugindir
-%plugindir/*.so
-%{_mandir}/man8/%{name}.8*
+%plugindir/*
+%{_docdir}/easy-rsa/COPYING
+%{_docdir}/easy-rsa/COPYRIGHT.GPL
+%{_docdir}/easy-rsa/README-2.0
 
+%files -n %develname
+%{_includedir}/openvpn-plugin.h

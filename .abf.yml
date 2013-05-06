@@ -1,3 +1,6 @@
-sources:
+removed_sources:
   openvpn-2.2.1.tar.gz: d5a8e9c635aa330eae8e66e1ccbe2b98e4c3047b
+sources:
+  easy-rsa-2.2.0_master.tar.gz: 6d43cce33f6c791ba3f60852746493d2b8dda2e0
   openvpn-2.2.1.tar.gz.asc: 7c0fa2fb6a5bc17a5acc197d46bed01e733627e2
+  openvpn-2.3.1.tar.gz: e4e8ac4fd9626472d4fa4c19ba4dd969ce838918
