@@ -1,14 +1,14 @@
 %define easy_rsa_version 2.2.0_master
-%define develname %mklibname %{name} -d
-
-
-%define plugindir %_libdir/%name/plugins
+%define plugindir %{_libdir}/%{name}/plugins
+%define _tmpfilesdir %{_prefix}/lib/tmpfiles.d
 
 Summary:	A Secure TCP/UDP Tunneling Daemon
 Name:		openvpn
 Version:	2.3.2
 Release:	1
-URL:		http://openvpn.net/
+License:	GPLv2
+Group:		Networking/Other
+Url:		http://openvpn.net/
 Source0:	http://swupdate.openvpn.org/community/releases/%{name}-%{version}.tar.gz
 Source3:	dhcp.sh
 Source4:	openvpn-tmpfile.conf
@@ -17,15 +17,11 @@ Source6:	openvpn.target
 Source7:	https://github.com/downloads/OpenVPN/easy-rsa/easy-rsa-%{easy_rsa_version}.tar.gz
 Patch1:		openvpn-2.3.openvpn_user.patch
 Patch2:		openvpn-2.3.1_rc15-wformat.patch
-License:	GPLv2
-Group:		Networking/Other
-BuildRequires:	liblzo-devel openssl-devel
+BuildRequires:	liblzo-devel
 BuildRequires:	pam-devel
-BuildRequires:	libpkcs11-helper-devel
-Requires(pre):	rpm-helper
-Requires(preun):	rpm-helper
-Requires(post):	rpm-helper
-Requires(postun):	rpm-helper
+BuildRequires:	pkgconfig(libpkcs11-helper-1)
+BuildRequires:	pkgconfig(openssl)
+Requires(pre,preun,post,postun):	rpm-helper
 Suggests:	openvpn-auth-ldap
 
 %description
@@ -33,35 +29,27 @@ OpenVPN is a robust and highly flexible tunneling application that  uses
 all of the encryption, authentication, and certification features of the
 OpenSSL library to securely tunnel IP networks over a single UDP port.
 
+%package devel
+Summary:	Development headers for OpenVPN plugins
+Group:		Development/Other
+Requires:	%{name} = %{version}-%{release}
 
-%package -n %develname
-Summary:        Development package for OpenVPN plugins
-Group:          System/Libraries
-Requires:       %{name} = %version-%release
-
-%description -n %develname
-OpenVPN .h files.
+%description devel
+OpenVPN header files.
 
 %prep
-%setup -q -n openvpn-%{version} -a 7
-%patch1 -p1
-%patch2 -p1
-
+%setup -q -a 7
+%apply_patches
 sed -i -e 's,%{_datadir}/openvpn/plugin,%{_libdir}/openvpn/plugin,' doc/openvpn.8
+autoreconf -fi
 
 # %%doc items shouldn't be executable.
 find contrib sample -type f -perm +100 \
-    -exec chmod a-x {} \;
+	-exec chmod a-x {} \;
 
 %build
 CFLAGS="%{optflags} -fPIC" CCFLAGS="%{optflags} -fPIC"
 %serverbuild
-#./pre-touch
-libtoolize --copy --force --install
-aclocal
-automake -a -c -f -i
-autoreconf -fi
-
 %configure2_5x \
 	--enable-systemd \
 	--enable-pthread \
@@ -146,21 +134,18 @@ fi
 %files
 %doc AUTHORS INSTALL PORTS README 
 %doc src/plugins/*/README.*
-%doc 
-%{_mandir}/man8/%{name}.8*
-%{_sbindir}/%{name}
-%{_datadir}/%{name}
+%{_docdir}/easy-rsa/*
 %dir %{_sysconfdir}/%{name}
-#{_datadir}/%{name}/dhcp.sh
 %{_unitdir}/%{name}*.service
 %{_unitdir}/%{name}.target
 %{_tmpfilesdir}/%{name}.conf
+%{_sbindir}/%{name}
+%{_mandir}/man8/%{name}.8*
+%{_datadir}/%{name}
+%dir %{plugindir}
+%{plugindir}/*.so
 %dir %{_localstatedir}/lib/%{name}
-%dir %plugindir
-%plugindir/*
-%{_docdir}/easy-rsa/COPYING
-%{_docdir}/easy-rsa/COPYRIGHT.GPL
-%{_docdir}/easy-rsa/README-2.0
 
-%files -n %develname
+%files devel
 %{_includedir}/openvpn-plugin.h
+
