@@ -7,7 +7,7 @@
 Summary:	A Secure TCP/UDP Tunneling Daemon
 Name:		openvpn
 Version:	2.3.2
-Release:	1
+Release:	2
 URL:		http://openvpn.net/
 Source0:	http://swupdate.openvpn.org/community/releases/%{name}-%{version}.tar.gz
 Source3:	dhcp.sh
