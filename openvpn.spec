@@ -4,8 +4,8 @@
 
 Summary:	A Secure TCP/UDP Tunneling Daemon
 Name:		openvpn
-Version:	2.3.2
-Release:	6
+Version:	2.3.4
+Release:	1
 License:	GPLv2
 Group:		Networking/Other
 Url:		http://openvpn.net/
@@ -17,7 +17,7 @@ Source6:	openvpn.target
 Source7:	https://github.com/downloads/OpenVPN/easy-rsa/easy-rsa-%{easy_rsa_version}.tar.gz
 Patch1:		openvpn-2.3.openvpn_user.patch
 Patch2:		openvpn-2.3.1_rc15-wformat.patch
-BuildRequires:	liblzo-devel
+BuildRequires:	lzo-devel
 BuildRequires:	pam-devel
 BuildRequires:	pkgconfig(libpkcs11-helper-1)
 BuildRequires:	pkgconfig(openssl)
@@ -40,12 +40,11 @@ OpenVPN header files.
 %prep
 %setup -q -a 7
 %apply_patches
+# %%doc items shouldn't be executable.
+find contrib sample -type f -perm /100 \
+    -exec chmod a-x {} \;
 sed -i -e 's,%{_datadir}/openvpn/plugin,%{_libdir}/openvpn/plugin,' doc/openvpn.8
 autoreconf -fi
-
-# %%doc items shouldn't be executable.
-find contrib sample -type f -perm +100 \
-	-exec chmod a-x {} \;
 
 %build
 CFLAGS="%{optflags} -fPIC" CCFLAGS="%{optflags} -fPIC"
