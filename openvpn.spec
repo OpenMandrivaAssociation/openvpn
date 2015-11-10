@@ -1,11 +1,12 @@
 %define easy_rsa_version 2.2.2
 %define plugindir %{_libdir}/%{name}/plugins
 %define _tmpfilesdir %{_prefix}/lib/tmpfiles.d
+%define __noautoreq 'perl\\(POSIX\\)|perl\\(Authen::PAM\\)'
 
 Summary:	A Secure TCP/UDP Tunneling Daemon
 Name:		openvpn
 Version:	2.3.7
-Release:	2
+Release:	3
 License:	GPLv2
 Group:		Networking/Other
 Url:		http://openvpn.net/
@@ -54,8 +55,6 @@ CFLAGS="%{optflags} -fPIC" CCFLAGS="%{optflags} -fPIC"
 %serverbuild
 %configure \
 	--enable-systemd \
-	--enable-pthread \
-	--with-lzo-headers=%{_includedir}/lzo \
 	--enable-password-save || cat config.log
 
 %make
@@ -65,6 +64,7 @@ CFLAGS="%{optflags} -fPIC" CCFLAGS="%{optflags} -fPIC"
 %make -C src/plugins/auth-pam
 
 pushd easy-rsa-%{easy_rsa_version}
+autoreconf -fi
 %configure \
 	--with-easyrsadir=%{_datadir}/%{name}/easy-rsa
 %make
