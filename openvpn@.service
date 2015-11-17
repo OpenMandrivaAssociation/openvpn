@@ -1,7 +1,6 @@
 [Unit]
-Description=OpenVPN Robust And Highly Flexible Tunneling Application (Config: %I)
+Description=OpenVPN Robust And Highly Flexible Tunneling Application On %I
 After=network.target
-PartOf=openvpn.target
 
 [Service]
 PrivateTmp=true

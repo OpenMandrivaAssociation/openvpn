@@ -6,7 +6,7 @@
 Summary:	A Secure TCP/UDP Tunneling Daemon
 Name:		openvpn
 Version:	2.3.7
-Release:	3
+Release:	4
 License:	GPLv2
 Group:		Networking/Other
 Url:		http://openvpn.net/
@@ -95,6 +95,12 @@ mkdir -p %{buildroot}%{plugindir}
 
 install -m755 %{SOURCE3} %{buildroot}%{_datadir}/%{name}
 
+install -d %{buildroot}%{_presetdir}
+cat > %{buildroot}%{_presetdir}/86-openvpn.preset << EOF
+enable openvpn.service
+enable openvpn.target
+EOF
+
 %pre
 %_pre_useradd %{name} %{_localstatedir}/lib/%{name} /bin/true
 
@@ -125,20 +131,13 @@ else
     systemctl --quiet enable %{name}.target
   fi
 fi
-%_tmpfilescreate %{name}
-%_post_service %{name} %{name}.target
-
-%preun
-%_preun_service %{name} %{name}.target
-
-%postun
-%_postun_userdel %{name}
 
 %files
 %doc AUTHORS INSTALL PORTS README 
 %doc src/plugins/*/README.*
 %{_docdir}/easy-rsa/*
 %dir %{_sysconfdir}/%{name}
+%{_presetdir}/86-openvpn.preset
 %{_unitdir}/%{name}*.service
 %{_unitdir}/%{name}.target
 %{_tmpfilesdir}/%{name}.conf
