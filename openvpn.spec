@@ -5,7 +5,7 @@
 
 Summary:	A Secure TCP/UDP Tunneling Daemon
 Name:		openvpn
-Version:	2.3.11
+Version:	2.3.14
 Release:	1
 License:	GPLv2
 Group:		Networking/Other
@@ -24,7 +24,6 @@ BuildRequires:	pkgconfig(libpkcs11-helper-1)
 BuildRequires:	pkgconfig(openssl)
 BuildRequires:	pkgconfig(systemd)
 BuildRequires:	pkgconfig(libsystemd)
-BuildRequires:	pkgconfig(libsystemd-daemon)
 Requires(pre,preun,post,postun):	rpm-helper
 Suggests:	openvpn-auth-ldap
 
