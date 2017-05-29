@@ -5,19 +5,17 @@
 
 Summary:	A Secure TCP/UDP Tunneling Daemon
 Name:		openvpn
-Version:	2.3.14
+Version:	2.4.2
 Release:	1
 License:	GPLv2
 Group:		Networking/Other
 Url:		http://openvpn.net/
 Source0:	http://swupdate.openvpn.org/community/releases/%{name}-%{version}.tar.gz
 Source3:	dhcp.sh
-Source4:	openvpn-tmpfile.conf
-Source5:	openvpn@.service
 Source6:	openvpn.target
 Source7:	https://github.com/downloads/OpenVPN/easy-rsa/easy-rsa-%{easy_rsa_version}.tar.gz
 Patch1:		openvpn-2.3.openvpn_user.patch
-Patch2:		openvpn-2.3.1_rc15-wformat.patch
+#Patch2:		openvpn-2.3.1_rc15-wformat.patch
 BuildRequires:	lzo-devel
 BuildRequires:	pam-devel
 BuildRequires:	pkgconfig(libpkcs11-helper-1)
@@ -54,6 +52,13 @@ CFLAGS="%{optflags} -fPIC" CCFLAGS="%{optflags} -fPIC"
 %serverbuild
 %configure \
 	--enable-systemd \
+	--enable-iproute2 \
+	--enable-plugins \
+	--enable-pkcs11 \
+	--enable-x509-alt-username \
+	SYSTEMD_UNIT_DIR=%{_unitdir} \
+	TMPFILES_DIR=%{_tmpfilesdir} \
+	IPROUTE=/sbin/ip \
 	--enable-password-save || cat config.log
 
 %make
@@ -74,7 +79,11 @@ popd
 mkdir -p %{buildroot}%{_datadir}/%{name}/easy-rsa
 %makeinstall_std -C easy-rsa-%{easy_rsa_version}
 
-install -d %{buildroot}%{_sysconfdir}/%{name}
+mkdir -p -m 0750 %{buildroot}%{_sysconfdir}/%{name}/client %{buildroot}%{_sysconfdir}/%{name}/server
+# Create some directories the OpenVPN package should own
+mkdir -m 0710 -p %{buildroot}%{_rundir}/%{name}-{client,server}
+mkdir -m 0770 -p %{buildroot}%{_sharedstatedir}/%{name}
+
 # (cg) NB The sample config file is needed for drakvpn
 cp -pr sample/sample-{config-file,key,script}s %{buildroot}%{_datadir}/%{name}
 
@@ -85,8 +94,6 @@ install -d %{buildroot}%{_localstatedir}/lib/%{name}
 rm -f %{buildroot}%{_datadir}/%{name}/sample-scripts/openvpn.init
 
 # (cg) Add systemd units
-install -D -m 644 %{SOURCE4} %{buildroot}%{_tmpfilesdir}/openvpn.conf
-install -D -m 644 %{SOURCE5} %{buildroot}%{_unitdir}/openvpn@.service
 install -D -m 644 %{SOURCE6} %{buildroot}%{_unitdir}/openvpn.target
 
 #plugins
@@ -132,10 +139,14 @@ else
 fi
 
 %files
-%doc AUTHORS INSTALL PORTS README 
+%doc AUTHORS INSTALL PORTS README
 %doc src/plugins/*/README.*
 %{_docdir}/easy-rsa/*
-%dir %{_sysconfdir}/%{name}
+%config %dir %{_sysconfdir}/%{name}/
+%config %dir %{_sysconfdir}/%{name}/client
+%config %dir %{_sysconfdir}/%{name}/server
+%attr(0710,-,-) %{_rundir}/%{name}-client
+%attr(0710,-,-) %{_rundir}/%{name}-server
 %{_presetdir}/86-openvpn.preset
 %{_unitdir}/%{name}*.service
 %{_unitdir}/%{name}.target
@@ -149,4 +160,4 @@ fi
 
 %files devel
 %{_includedir}/openvpn-plugin.h
-
+%{_includedir}/openvpn-msg.h
