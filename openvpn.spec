@@ -15,7 +15,7 @@ Source3:	dhcp.sh
 Source6:	openvpn.target
 Source7:	https://github.com/downloads/OpenVPN/easy-rsa/easy-rsa-%{easy_rsa_version}.tar.gz
 Patch1:		openvpn-2.3.openvpn_user.patch
-#Patch2:		openvpn-2.3.1_rc15-wformat.patch
+Patch2:		openvpn-2.3.1_rc15-wformat.patch
 BuildRequires:	lzo-devel
 BuildRequires:	pam-devel
 BuildRequires:	pkgconfig(libpkcs11-helper-1)
