@@ -107,6 +107,11 @@ enable openvpn.service
 enable openvpn.target
 EOF
 
+%check
+# Test Crypto:
+./src/openvpn/openvpn --genkey --secret key
+./src/openvpn/openvpn --test-crypto --secret key
+
 %pre
 %_pre_useradd %{name} %{_localstatedir}/lib/%{name} /bin/true
 
