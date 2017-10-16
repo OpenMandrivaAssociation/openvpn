@@ -20,7 +20,6 @@ BuildRequires:	lzo-devel
 BuildRequires:	pam-devel
 BuildRequires:	pkgconfig(libpkcs11-helper-1)
 BuildRequires:	pkgconfig(openssl)
-BuildRequires:	pkgconfig(systemd)
 BuildRequires:	pkgconfig(libsystemd)
 Requires(pre,preun,post,postun):	rpm-helper
 Suggests:	openvpn-auth-ldap
