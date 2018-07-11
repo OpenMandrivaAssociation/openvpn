@@ -1,6 +1,5 @@
 %define easy_rsa_version 2.2.2
 %define plugindir %{_libdir}/%{name}/plugins
-%define _tmpfilesdir %{_prefix}/lib/tmpfiles.d
 %define __noautoreq 'perl\\(POSIX\\)|perl\\(Authen::PAM\\)'
 
 Summary:	A Secure TCP/UDP Tunneling Daemon
@@ -21,6 +20,7 @@ BuildRequires:	pam-devel
 BuildRequires:	pkgconfig(libpkcs11-helper-1)
 BuildRequires:	pkgconfig(openssl)
 BuildRequires:	pkgconfig(libsystemd)
+BuildRequires:	systemd
 Requires(pre,preun,post,postun):	rpm-helper
 Suggests:	openvpn-auth-ldap
 
@@ -66,12 +66,12 @@ CFLAGS="%{optflags} -fPIC" CCFLAGS="%{optflags} -fPIC"
 %make -C src/plugins/down-root
 %make -C src/plugins/auth-pam
 
-pushd easy-rsa-%{easy_rsa_version}
+cd easy-rsa-%{easy_rsa_version}
 autoreconf -fi
 %configure \
 	--with-easyrsadir=%{_datadir}/%{name}/easy-rsa
 %make
-popd
+cd -
 
 %install
 %makeinstall_std
