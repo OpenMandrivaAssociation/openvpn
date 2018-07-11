@@ -55,7 +55,7 @@ CFLAGS="%{optflags} -fPIC" CCFLAGS="%{optflags} -fPIC"
 	--enable-plugins \
 	--enable-pkcs11 \
 	--enable-x509-alt-username \
-	SYSTEMD_UNIT_DIR=%{_unitdir} \
+	SYSTEMD_UNIT_DIR=%{_systemunitdir} \
 	TMPFILES_DIR=%{_tmpfilesdir} \
 	IPROUTE=/sbin/ip \
 	--enable-password-save || cat config.log
@@ -143,8 +143,7 @@ else
 fi
 
 %files
-%doc AUTHORS INSTALL PORTS README
-%doc src/plugins/*/README.*
+%doc %{_docdir}/%{name}
 %{_docdir}/easy-rsa/*
 %config %dir %{_sysconfdir}/%{name}/
 %config %dir %{_sysconfdir}/%{name}/client
