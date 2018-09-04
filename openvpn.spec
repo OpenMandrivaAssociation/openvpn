@@ -1,18 +1,18 @@
-%define easy_rsa_version 2.2.2
+%define easy_rsa_version 3.0.4
 %define plugindir %{_libdir}/%{name}/plugins
 %define __noautoreq 'perl\\(POSIX\\)|perl\\(Authen::PAM\\)'
 
 Summary:	A Secure TCP/UDP Tunneling Daemon
 Name:		openvpn
-Version:	2.4.4
-Release:	2
+Version:	2.4.6
+Release:	1
 License:	GPLv2
 Group:		Networking/Other
 Url:		http://openvpn.net/
 Source0:	http://swupdate.openvpn.org/community/releases/%{name}-%{version}.tar.gz
 Source3:	dhcp.sh
 Source6:	openvpn.target
-Source7:	https://github.com/downloads/OpenVPN/easy-rsa/easy-rsa-%{easy_rsa_version}.tar.gz
+Source7:	https://github.com/OpenVPN/easy-rsa/releases/download/v%{easy_rsa_version}/EasyRSA-%{easy_rsa_version}.tgz
 Patch1:		openvpn-2.3.openvpn_user.patch
 Patch2:		openvpn-2.3.1_rc15-wformat.patch
 BuildRequires:	lzo-devel
@@ -21,6 +21,7 @@ BuildRequires:	pkgconfig(libpkcs11-helper-1)
 BuildRequires:	pkgconfig(openssl)
 BuildRequires:	pkgconfig(libsystemd)
 BuildRequires:	systemd
+BuildRequires:	rpm-helper
 Requires(pre,preun,post,postun):	rpm-helper
 Suggests:	openvpn-auth-ldap
 
@@ -66,17 +67,11 @@ CFLAGS="%{optflags} -fPIC" CCFLAGS="%{optflags} -fPIC"
 %make -C src/plugins/down-root
 %make -C src/plugins/auth-pam
 
-cd easy-rsa-%{easy_rsa_version}
-autoreconf -fi
-%configure \
-	--with-easyrsadir=%{_datadir}/%{name}/easy-rsa
-%make
-cd -
-
 %install
 %makeinstall_std
-mkdir -p %{buildroot}%{_datadir}/%{name}/easy-rsa
-%makeinstall_std -C easy-rsa-%{easy_rsa_version}
+mkdir -p %{buildroot}%{_datadir}/%{name}/easy-rsa %{buildroot}%{_sysconfdir}/pki/tls
+cp -a EasyRSA-%{easy_rsa_version}/easyrsa %{buildroot}%{_datadir}/%{name}/easy-rsa/
+cp -a EasyRSA-%{easy_rsa_version}/openssl-easyrsa.cnf %{buildroot}%{_sysconfdir}/pki/tls/
 
 mkdir -p -m 0750 %{buildroot}%{_sysconfdir}/%{name}/client %{buildroot}%{_sysconfdir}/%{name}/server
 # Create some directories the OpenVPN package should own
@@ -144,7 +139,7 @@ fi
 
 %files
 %doc %{_docdir}/%{name}
-%{_docdir}/easy-rsa/*
+%config %{_sysconfdir}/pki/tls/openssl-easyrsa.cnf
 %config %dir %{_sysconfdir}/%{name}/
 %config %dir %{_sysconfdir}/%{name}/client
 %config %dir %{_sysconfdir}/%{name}/server
