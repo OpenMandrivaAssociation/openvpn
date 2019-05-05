@@ -5,7 +5,7 @@
 Summary:	A Secure TCP/UDP Tunneling Daemon
 Name:		openvpn
 Version:	2.4.6
-Release:	2
+Release:	3
 License:	GPLv2
 Group:		Networking/Other
 Url:		http://openvpn.net/
@@ -20,7 +20,7 @@ BuildRequires:	pam-devel
 BuildRequires:	pkgconfig(libpkcs11-helper-1)
 BuildRequires:	pkgconfig(openssl)
 BuildRequires:	pkgconfig(libsystemd)
-BuildRequires:	systemd
+BuildRequires:	systemd-macros
 BuildRequires:	rpm-helper
 Requires(pre,preun,post,postun):	rpm-helper
 Suggests:	openvpn-auth-ldap
@@ -39,8 +39,7 @@ Requires:	%{name} = %{version}-%{release}
 OpenVPN header files.
 
 %prep
-%setup -q -a 7
-%apply_patches
+%autosetup -p1 -a 7
 # %%doc items shouldn't be executable.
 find contrib sample -type f -perm /100 \
     -exec chmod a-x {} \;
@@ -56,19 +55,19 @@ CFLAGS="%{optflags} -fPIC" CCFLAGS="%{optflags} -fPIC"
 	--enable-plugins \
 	--enable-pkcs11 \
 	--enable-x509-alt-username \
-	SYSTEMD_UNIT_DIR=%{_systemunitdir} \
+	SYSTEMD_UNIT_DIR=%{_unitdir} \
 	TMPFILES_DIR=%{_tmpfilesdir} \
 	IPROUTE=/sbin/ip \
 	--enable-password-save || cat config.log
 
-%make
+%make_build
 
 # plugins
-%make -C src/plugins/down-root
-%make -C src/plugins/auth-pam
+%make_build -C src/plugins/down-root
+%make_build -C src/plugins/auth-pam
 
 %install
-%makeinstall_std
+%make_install
 mkdir -p %{buildroot}%{_datadir}/%{name}/easy-rsa %{buildroot}%{_sysconfdir}/pki/tls
 cp -a EasyRSA-%{easy_rsa_version}/easyrsa %{buildroot}%{_datadir}/%{name}/easy-rsa/
 cp -a EasyRSA-%{easy_rsa_version}/openssl-easyrsa.cnf %{buildroot}%{_sysconfdir}/pki/tls/
