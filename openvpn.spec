@@ -15,13 +15,16 @@ Source6:	openvpn.target
 Source7:	https://github.com/OpenVPN/easy-rsa/releases/download/v%{easy_rsa_version}/EasyRSA-%{easy_rsa_version}.tgz
 Patch1:		openvpn-2.3.openvpn_user.patch
 Patch2:		openvpn-2.3.1_rc15-wformat.patch
-BuildRequires:	lzo-devel
+BuildRequires:	pkgconfig(lzo2)
 BuildRequires:	pam-devel
 BuildRequires:	pkgconfig(libpkcs11-helper-1)
+BuildRequires:	pkgconfig(p11-kit-1)
 BuildRequires:	pkgconfig(openssl)
 BuildRequires:	pkgconfig(libsystemd)
 BuildRequires:	systemd-macros
 BuildRequires:	rpm-helper
+BuildRequires:	pkgconfig(liblz4)
+BuildRequires:	cmake
 Requires(pre,preun,post,postun):	rpm-helper
 Suggests:	openvpn-auth-ldap
 
