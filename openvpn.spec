@@ -24,9 +24,11 @@ BuildRequires:	pkgconfig(libsystemd)
 BuildRequires:	systemd-macros
 BuildRequires:	rpm-helper
 BuildRequires:	pkgconfig(liblz4)
+BuildRequires:	iproute2
 BuildRequires:	cmake
 Requires(pre,preun,post,postun):	rpm-helper
 Suggests:	openvpn-auth-ldap
+Requires:	iproute2
 
 %description
 OpenVPN is a robust and highly flexible tunneling application that  uses
@@ -58,6 +60,8 @@ CFLAGS="%{optflags} -fPIC" CCFLAGS="%{optflags} -fPIC"
 	--enable-plugins \
 	--enable-pkcs11 \
 	--enable-x509-alt-username \
+	--with-crypto-library=openssl \
+	--enable-async-push \
 	SYSTEMD_UNIT_DIR=%{_unitdir} \
 	TMPFILES_DIR=%{_tmpfilesdir} \
 	IPROUTE=/sbin/ip \
@@ -106,7 +110,10 @@ EOF
 %check
 # Test Crypto:
 ./src/openvpn/openvpn --genkey --secret key
-./src/openvpn/openvpn --test-crypto --secret key
+./src/openvpn/openvpn --cipher aes-128-cbc --test-crypto --secret key
+./src/openvpn/openvpn --cipher aes-256-cbc --test-crypto --secret key
+./src/openvpn/openvpn --cipher aes-128-gcm --test-crypto --secret key
+./src/openvpn/openvpn --cipher aes-256-gcm --test-crypto --secret key
 
 %pre
 %_pre_useradd %{name} %{_localstatedir}/lib/%{name} /bin/true
