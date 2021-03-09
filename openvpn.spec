@@ -158,7 +158,7 @@ fi
 %{_unitdir}/%{name}.target
 %{_tmpfilesdir}/%{name}.conf
 %{_sbindir}/%{name}
-#{_mandir}/man8/%{name}.8*
+%{_mandir}/man8/%{name}.8*
 %{_datadir}/%{name}
 %dir %{plugindir}
 %{plugindir}/*.so
