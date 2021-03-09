@@ -4,16 +4,15 @@
 
 Summary:	A Secure TCP/UDP Tunneling Daemon
 Name:		openvpn
-Version:	2.4.9
-Release:	3
+Version:	2.5.1
+Release:	1
 License:	GPLv2
 Group:		Networking/Other
 Url:		http://openvpn.net/
-Source0:	http://swupdate.openvpn.org/community/releases/%{name}-%{version}.tar.gz
+Source0:	https://github.com/OpenVPN/openvpn/archive/v%{version}/%{name}-%{version}.tar.gz
 Source3:	dhcp.sh
 Source6:	openvpn.target
 Source7:	https://github.com/OpenVPN/easy-rsa/releases/download/v%{easy_rsa_version}/EasyRSA-%{easy_rsa_version}.tgz
-Patch1:		openvpn-2.3.openvpn_user.patch
 Patch2:		openvpn-2.3.1_rc15-wformat.patch
 BuildRequires:	pkgconfig(lzo2)
 BuildRequires:	pam-devel
@@ -26,6 +25,7 @@ BuildRequires:	rpm-helper
 BuildRequires:	pkgconfig(liblz4)
 BuildRequires:	iproute2
 BuildRequires:	cmake
+BuildRequires:	python3dist(docutils)
 Requires(pre,preun,post,postun):	rpm-helper
 Suggests:	openvpn-auth-ldap
 Requires:	iproute2
@@ -48,7 +48,6 @@ OpenVPN header files.
 # %%doc items shouldn't be executable.
 find contrib sample -type f -perm /100 \
     -exec chmod a-x {} \;
-sed -i -e 's,%{_datadir}/openvpn/plugin,%{_libdir}/openvpn/plugin,' doc/openvpn.8
 autoreconf -fi
 
 %build
