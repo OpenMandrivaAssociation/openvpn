@@ -47,7 +47,7 @@ OpenVPN header files.
 # %%doc items shouldn't be executable.
 find contrib sample -type f -perm /100 \
     -exec chmod a-x {} \;
-#autoreconf -fi
+autoreconf -fi
 
 %build
 CFLAGS="%{optflags} -fPIC" CCFLAGS="%{optflags} -fPIC"
@@ -157,7 +157,7 @@ fi
 %{_unitdir}/%{name}.target
 %{_tmpfilesdir}/%{name}.conf
 %{_sbindir}/%{name}
-%{_mandir}/man8/%{name}.8*
+#{_mandir}/man8/%{name}.8*
 %{_datadir}/%{name}
 %dir %{plugindir}
 %{plugindir}/*.so
