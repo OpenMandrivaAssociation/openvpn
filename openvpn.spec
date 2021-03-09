@@ -25,6 +25,7 @@ BuildRequires:	rpm-helper
 BuildRequires:	pkgconfig(liblz4)
 BuildRequires:	iproute2
 BuildRequires:	cmake
+BuildRequires:	python3dist(docutils)
 Requires(pre,preun,post,postun):	rpm-helper
 Suggests:	openvpn-auth-ldap
 Requires:	iproute2
