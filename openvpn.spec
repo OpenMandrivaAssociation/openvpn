@@ -9,7 +9,7 @@ Release:	1
 License:	GPLv2
 Group:		Networking/Other
 Url:		http://openvpn.net/
-Source0:	http://swupdate.openvpn.org/community/releases/%{name}-%{version}.tar.gz
+Source0:	https://github.com/OpenVPN/openvpn/archive/v%{version}/%{name}-%{version}.tar.gz
 Source3:	dhcp.sh
 Source6:	openvpn.target
 Source7:	https://github.com/OpenVPN/easy-rsa/releases/download/v%{easy_rsa_version}/EasyRSA-%{easy_rsa_version}.tgz
