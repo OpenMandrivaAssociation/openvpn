@@ -47,7 +47,7 @@ OpenVPN header files.
 # %%doc items shouldn't be executable.
 find contrib sample -type f -perm /100 \
     -exec chmod a-x {} \;
-sed -i -e 's,%{_datadir}/openvpn/plugin,%{_libdir}/openvpn/plugin,' doc/openvpn.8
+sed -i -e 's,%{_datadir}/openvpn/plugin,%{_libdir}/openvpn/plugin
 autoreconf -fi
 
 %build
