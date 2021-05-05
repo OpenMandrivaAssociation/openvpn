@@ -4,15 +4,15 @@
 
 Summary:	A Secure TCP/UDP Tunneling Daemon
 Name:		openvpn
-Version:	2.5.1
+Version:	2.5.2
 Release:	1
 License:	GPLv2
 Group:		Networking/Other
 Url:		http://openvpn.net/
 Source0:	https://github.com/OpenVPN/openvpn/archive/v%{version}/%{name}-%{version}.tar.gz
+Source1:	https://github.com/OpenVPN/easy-rsa/releases/download/v%{easy_rsa_version}/EasyRSA-%{easy_rsa_version}.tgz
+Source2:	%{name}.sysusers
 Source3:	dhcp.sh
-Source6:	openvpn.target
-Source7:	https://github.com/OpenVPN/easy-rsa/releases/download/v%{easy_rsa_version}/EasyRSA-%{easy_rsa_version}.tgz
 Patch2:		openvpn-2.3.1_rc15-wformat.patch
 BuildRequires:	pkgconfig(lzo2)
 BuildRequires:	pam-devel
@@ -26,7 +26,7 @@ BuildRequires:	pkgconfig(liblz4)
 BuildRequires:	iproute2
 BuildRequires:	cmake
 BuildRequires:	python3dist(docutils)
-Requires(pre,preun,post,postun):	rpm-helper
+%systemd_requires
 Suggests:	openvpn-auth-ldap
 Requires:	iproute2
 
@@ -44,7 +44,7 @@ Requires:	%{name} = %{version}-%{release}
 OpenVPN header files.
 
 %prep
-%autosetup -p1 -a 7
+%autosetup -p1 -a 1
 # %%doc items shouldn't be executable.
 find contrib sample -type f -perm /100 \
     -exec chmod a-x {} \;
@@ -92,18 +92,16 @@ install -d %{buildroot}%{_localstatedir}/lib/%{name}
 # (cg) Nuke sysvinit script
 rm -f %{buildroot}%{_datadir}/%{name}/sample-scripts/openvpn.init
 
-# (cg) Add systemd units
-install -D -m 644 %{SOURCE6} %{buildroot}%{_unitdir}/openvpn.target
-
 #plugins
 mkdir -p %{buildroot}%{plugindir}
 
 install -m755 %{SOURCE3} %{buildroot}%{_datadir}/%{name}
 
+install -D -p -m 644 %{SOURCE2} %{buildroot}%{_sysusersdir}/%{name}.conf
+
 install -d %{buildroot}%{_presetdir}
 cat > %{buildroot}%{_presetdir}/86-openvpn.preset << EOF
 enable openvpn.service
-enable openvpn.target
 EOF
 
 %check
@@ -114,36 +112,17 @@ EOF
 ./src/openvpn/openvpn --cipher aes-128-gcm --test-crypto --secret key
 ./src/openvpn/openvpn --cipher aes-256-gcm --test-crypto --secret key
 
-%pre
-%_pre_useradd %{name} %{_localstatedir}/lib/%{name} /bin/true
-
 %post
-# (cg) This is a templated unit, so we have to manually convert to systemd
-if [ ! -f %{_localstatedir}/lib/rpm-helper/systemd-migration/%{name} ]; then
-  if [ -f %{_sysconfdir}/rc3.d/S??%{name} ]; then
-    for conf in %{_sysconfdir}/%{name}/*.conf; do
-      [ "$conf" = "%{_sysconfdir}/%{name}/*.conf" ] && continue
-      conf=$(basename $conf .conf)
-      mkdir -p %{_sysconfdir}/systemd/system/%{name}.target.wants
-      ln -s %{_unitdir}/%{name}@.service %{_sysconfdir}/systemd/system/%{name}.target.wants/%{name}@$conf.service
-    done
-    systemctl --quiet enable %{name}.target
-  fi
-  mkdir -p %{_localstatedir}/lib/rpm-helper/systemd-migration
-  touch %{_localstatedir}/lib/rpm-helper/systemd-migration/%{name}
-else
-  # (cg) Older versions were not controlled by their own target
-  UNITS=
-  for unit in %{_sysconfdir}/systemd/system/multi-user.target.wants/%{name}@?*.service; do
-    [ "$unit" = "%{_sysconfdir}/systemd/system/multi-user.target.wants/%{name}@?*.service" ] && continue
-    UNITS="$UNITS $unit"
-  done
-  if [ -n "$UNITS" ]; then
-    mkdir %{_sysconfdir}/systemd/system/%{name}.target.wants
-    mv $UNITS %{_sysconfdir}/systemd/system/%{name}.target.wants
-    systemctl --quiet enable %{name}.target
-  fi
-fi
+%systemd_post openvpn-client@\*.service
+%systemd_post openvpn-server@\*.service
+
+%preun
+%systemd_preun openvpn-client@\*.service
+%systemd_preun openvpn-server@\*.service
+
+%postun
+%systemd_postun_with_restart openvpn-client@\*.service
+%systemd_postun_with_restart openvpn-server@\*.service
 
 %files
 %doc %{_docdir}/%{name}
@@ -155,7 +134,7 @@ fi
 %attr(0710,-,-) %{_rundir}/%{name}-server
 %{_presetdir}/86-openvpn.preset
 %{_unitdir}/%{name}*.service
-%{_unitdir}/%{name}.target
+%{_sysusersdir}/%{name}.conf
 %{_tmpfilesdir}/%{name}.conf
 %{_sbindir}/%{name}
 %{_mandir}/man8/%{name}.8*
