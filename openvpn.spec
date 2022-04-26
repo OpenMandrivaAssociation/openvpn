@@ -138,6 +138,7 @@ EOF
 %{_tmpfilesdir}/%{name}.conf
 %{_sbindir}/%{name}
 %{_mandir}/man8/%{name}.8*
+%{_mandir}/man5/openvpn-examples.5.*
 %{_datadir}/%{name}
 %dir %{plugindir}
 %{plugindir}/*.so
