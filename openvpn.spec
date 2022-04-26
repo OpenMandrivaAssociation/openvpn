@@ -4,7 +4,7 @@
 
 Summary:	A Secure TCP/UDP Tunneling Daemon
 Name:		openvpn
-Version:	2.5.3
+Version:	2.5.6
 Release:	1
 License:	GPLv2
 Group:		Networking/Other
@@ -138,6 +138,7 @@ EOF
 %{_tmpfilesdir}/%{name}.conf
 %{_sbindir}/%{name}
 %{_mandir}/man8/%{name}.8*
+%{_mandir}/man5/openvpn-examples.5.*
 %{_datadir}/%{name}
 %dir %{plugindir}
 %{plugindir}/*.so
