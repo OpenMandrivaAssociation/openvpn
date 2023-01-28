@@ -16,6 +16,7 @@ Source3:	dhcp.sh
 #Patch2:		openvpn-2.3.1_rc15-wformat.patch
 BuildRequires:	pkgconfig(lzo2)
 BuildRequires:	pam-devel
+BuildRequires:	pkgconfig(libcap-ng)
 BuildRequires:	pkgconfig(libpkcs11-helper-1)
 BuildRequires:	pkgconfig(p11-kit-1)
 BuildRequires:	pkgconfig(openssl)
