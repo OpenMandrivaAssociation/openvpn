@@ -13,7 +13,7 @@ Source0:	https://github.com/OpenVPN/openvpn/archive/v%{version}/%{name}-%{versio
 Source1:	https://github.com/OpenVPN/easy-rsa/releases/download/v%{easy_rsa_version}/EasyRSA-%{easy_rsa_version}.tgz
 Source2:	%{name}.sysusers
 Source3:	dhcp.sh
-Patch2:		openvpn-2.3.1_rc15-wformat.patch
+#Patch2:		openvpn-2.3.1_rc15-wformat.patch
 BuildRequires:	pkgconfig(lzo2)
 BuildRequires:	pam-devel
 BuildRequires:	pkgconfig(libpkcs11-helper-1)
