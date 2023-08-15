@@ -1,10 +1,10 @@
-%define easy_rsa_version 3.1.0
+%define easy_rsa_version 3.1.5
 %define plugindir %{_libdir}/%{name}/plugins
 %define __noautoreq 'perl\\(POSIX\\)|perl\\(Authen::PAM\\)'
 
 Summary:	A Secure TCP/UDP Tunneling Daemon
 Name:		openvpn
-Version:	2.6.5
+Version:	2.6.6
 Release:	1
 License:	GPLv2
 Group:		Networking/Other
