@@ -8,7 +8,7 @@ Version:	2.6.12
 Release:	1
 License:	GPLv2
 Group:		Networking/Other
-Url:		http://openvpn.net/
+Url:		https://openvpn.net/
 Source0:	https://github.com/OpenVPN/openvpn/archive/v%{version}/%{name}-%{version}.tar.gz
 Source1:	https://github.com/OpenVPN/easy-rsa/releases/download/v%{easy_rsa_version}/EasyRSA-%{easy_rsa_version}.tgz
 Source2:	%{name}.sysusers
