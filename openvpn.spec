@@ -1,4 +1,4 @@
-%define easy_rsa_version 3.2.0
+%define easy_rsa_version 3.2.4
 %define plugindir %{_libdir}/%{name}/plugins
 %define __noautoreq 'perl\\(POSIX\\)|perl\\(Authen::PAM\\)'
 
