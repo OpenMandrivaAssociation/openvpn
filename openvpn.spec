@@ -4,8 +4,8 @@
 
 Summary:	A Secure TCP/UDP Tunneling Daemon
 Name:		openvpn
-Version:	2.6.17
-Release:	2
+Version:	2.7.5
+Release:	1
 License:	GPLv2
 Group:		Networking/Other
 Url:		https://openvpn.net/
