@@ -14,6 +14,7 @@ Source1:	https://github.com/OpenVPN/easy-rsa/releases/download/v%{easy_rsa_versi
 Source2:	%{name}.sysusers
 Source3:	dhcp.sh
 #Patch2:		openvpn-2.3.1_rc15-wformat.patch
+BuildRequires:	make
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	libtool-base
