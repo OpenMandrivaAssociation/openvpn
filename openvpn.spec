@@ -138,6 +138,7 @@ EOF
 %config %dir %{_sysconfdir}/%{name}/server
 %attr(0710,-,-) %{_rundir}/%{name}-client
 %attr(0710,-,-) %{_rundir}/%{name}-server
+%{_libexecdir}/openvpn/dns-updown
 %{_presetdir}/86-openvpn.preset
 %{_unitdir}/%{name}*.service
 %{_sysusersdir}/%{name}.conf
